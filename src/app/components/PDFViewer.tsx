@@ -50,6 +50,24 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
     }
   };
 
+  const zoomIn = () => {
+    if (transformRef.current) {
+      transformRef.current.zoomIn();
+    }
+  };
+
+  const zoomOut = () => {
+    if (transformRef.current) {
+      transformRef.current.zoomOut();
+    }
+  };
+
+  const resetZoom = () => {
+    if (transformRef.current) {
+      transformRef.current.resetTransform();
+    }
+  };
+
   useEffect(() => {
     const updatePageWidth = () => {
       if (typeof window !== 'undefined') {
@@ -137,10 +155,8 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
           ref={transformRef}
           initialScale={1}
           minScale={0.8}
-          maxScale={4}
+          maxScale={6}
           centerOnInit={true}
-          wheel={{ step: 0.1 }}
-          pinch={{ step: 1 }}
           doubleClick={{ mode: "reset" }}
           smooth={false}
         >
@@ -176,6 +192,67 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
             </Document>
           </TransformComponent>
         </TransformWrapper>
+      </div>
+
+      {/* Fixed Footer with Zoom Controls */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+        {/* Mobile: Full width layout */}
+        <div className="flex items-center justify-center px-4 py-3 md:hidden">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={zoomOut}
+              className="py-3 px-6 bg-green-600 text-white rounded-lg font-bold transition-colors hover:bg-green-700"
+              title="Verkleinern"
+            >
+              − Kleiner
+            </button>
+
+            <button
+              onClick={resetZoom}
+              className="py-2 px-4 bg-gray-500 text-white rounded-lg text-sm font-medium transition-colors hover:bg-gray-600"
+              title="Normal"
+            >
+              Normal
+            </button>
+
+            <button
+              onClick={zoomIn}
+              className="py-3 px-6 bg-green-600 text-white rounded-lg font-bold transition-colors hover:bg-green-700"
+              title="Vergrößern"
+            >
+              + Größer
+            </button>
+          </div>
+        </div>
+
+        {/* Desktop: Centered layout */}
+        <div className="hidden md:flex items-center justify-center px-4 py-3">
+          <div className="flex items-center gap-6">
+            <button
+              onClick={zoomOut}
+              className="py-3 px-8 bg-green-600 text-white rounded-lg text-xl font-bold transition-colors hover:bg-green-700"
+              title="Verkleinern"
+            >
+              − Verkleinern
+            </button>
+
+            <button
+              onClick={resetZoom}
+              className="py-2 px-6 bg-gray-500 text-white rounded-lg text-lg font-medium transition-colors hover:bg-gray-600"
+              title="Normal"
+            >
+              Normal
+            </button>
+
+            <button
+              onClick={zoomIn}
+              className="py-3 px-8 bg-green-600 text-white rounded-lg text-xl font-bold transition-colors hover:bg-green-700"
+              title="Vergrößern"
+            >
+              + Vergrößern
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
