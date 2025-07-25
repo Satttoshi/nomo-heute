@@ -1,7 +1,8 @@
 'use client';
 
 import { pdfjs, Document, Page } from 'react-pdf';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { TransformWrapper, TransformComponent, ReactZoomPanPinchRef } from 'react-zoom-pan-pinch';
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -19,6 +20,7 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
   const [, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const [pageWidth, setPageWidth] = useState<number>(800);
+  const transformRef = useRef<ReactZoomPanPinchRef>(null);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }): void {
     setNumPages(numPages);
@@ -34,10 +36,18 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
 
   const goToPrevPage = () => {
     setPageNumber(page => Math.max(1, page - 1));
+    // Reset zoom when changing pages
+    if (transformRef.current) {
+      transformRef.current.resetTransform();
+    }
   };
 
   const goToNextPage = () => {
     setPageNumber(page => Math.min(numPages || 1, page + 1));
+    // Reset zoom when changing pages
+    if (transformRef.current) {
+      transformRef.current.resetTransform();
+    }
   };
 
   useEffect(() => {
@@ -63,7 +73,7 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
+    <div className="pdf-zoom-container">
       {/* Fixed Header Navigation */}
       {numPages && numPages > 1 && (
         <div className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 shadow-lg z-50">
@@ -76,13 +86,13 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
             >
               ← Zurück
             </button>
-            
+
             <div className="flex-shrink-0 mx-4 text-center">
               <span className="text-lg font-medium text-gray-700 whitespace-nowrap">
                 {pageNumber} / {numPages}
               </span>
             </div>
-            
+
             <button
               onClick={goToNextPage}
               disabled={pageNumber >= numPages}
@@ -102,13 +112,13 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
               >
                 ← Zurück
               </button>
-              
+
               <div className="text-center min-w-[100px]">
                 <span className="text-lg font-medium text-gray-700 whitespace-nowrap">
                   {pageNumber} / {numPages}
                 </span>
               </div>
-              
+
               <button
                 onClick={goToNextPage}
                 disabled={pageNumber >= numPages}
@@ -121,41 +131,23 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
         </div>
       )}
 
-      {/* PDF Content - Centered on desktop, touch-zoomable on mobile */}
-      <div className={`flex-1 flex justify-center ${numPages && numPages > 1 ? 'pt-20' : 'pt-2'}`}>
-        {/* Desktop: Fixed max-width container for centering */}
-        <div className="hidden md:flex w-full max-w-4xl justify-center p-4">
-          <Document
-            file={pdfUrl}
-            onLoadSuccess={onDocumentLoadSuccess}
-            onLoadError={onDocumentLoadError}
-            loading={
-              <div className="flex items-center justify-center h-screen">
-                <div className="text-2xl text-gray-600 text-center">
-                  <div className="mb-4">📰</div>
-                  <div>Zeitung wird geladen...</div>
-                </div>
-              </div>
-            }
-            error={null}
-            className="shadow-lg rounded-lg overflow-hidden"
+      {/* PDF Content Area with zoom/pan support */}
+      <div className="pdf-content-area flex justify-center">
+        <TransformWrapper
+          ref={transformRef}
+          initialScale={1}
+          minScale={0.8}
+          maxScale={4}
+          centerOnInit={true}
+          wheel={{ step: 0.1 }}
+          pinch={{ step: 1 }}
+          doubleClick={{ mode: "reset" }}
+          smooth={false}
+        >
+          <TransformComponent
+            wrapperClass="w-full !h-full"
+            contentClass="flex justify-center items-start"
           >
-            <Page 
-              pageNumber={pageNumber} 
-              width={Math.min(pageWidth, 900)}
-              className="mx-auto"
-              loading={
-                <div className="flex items-center justify-center h-96">
-                  <div className="text-xl text-gray-600">Seite wird geladen...</div>
-                </div>
-              }
-            />
-          </Document>
-        </div>
-        
-        {/* Mobile: Touch-zoomable container */}
-        <div className="md:hidden mobile-pdf-container">
-          <div className="mobile-pdf-content">
             <Document
               file={pdfUrl}
               onLoadSuccess={onDocumentLoadSuccess}
@@ -169,12 +161,12 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
                 </div>
               }
               error={null}
-              className="w-full"
+              className="shadow-lg rounded-lg overflow-hidden bg-white"
             >
-              <Page 
-                pageNumber={pageNumber} 
-                width={Math.max(pageWidth, 600)}
-                className=""
+              <Page
+                pageNumber={pageNumber}
+                width={Math.min(pageWidth, 900)}
+                className="mx-auto"
                 loading={
                   <div className="flex items-center justify-center h-96">
                     <div className="text-xl text-gray-600">Seite wird geladen...</div>
@@ -182,8 +174,8 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
                 }
               />
             </Document>
-          </div>
-        </div>
+          </TransformComponent>
+        </TransformWrapper>
       </div>
     </div>
   );
