@@ -158,7 +158,7 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
           maxScale={6}
           centerOnInit={true}
           doubleClick={{ mode: "reset" }}
-          smooth={false}
+          smooth={true}
         >
           <TransformComponent
             wrapperClass="w-full !h-full"
