@@ -64,12 +64,6 @@ html {
   border-radius: 8px;
 }
 
-.react-pdf__Page__canvas {
-  max-width: 100% !important;
-  height: auto !important;
-  border-radius: 8px;
-}
-
 /* Mobile PDF zoom container styles */
 .mobile-pdf-container {
   touch-action: pan-x pan-y pinch-zoom;
@@ -93,17 +87,17 @@ html {
     /* Prevent zoom on double tap but allow pinch zoom */
     touch-action: manipulation;
   }
-  
+
   .react-pdf__Page {
     margin: 0;
   }
-  
+
   .react-pdf__Page__canvas {
     border-radius: 4px;
     /* Allow canvas to be zoomed */
     touch-action: pan-x pan-y pinch-zoom;
   }
-  
+
   /* Ensure the PDF container can be zoomed */
   .react-pdf__Document {
     touch-action: pan-x pan-y pinch-zoom;
