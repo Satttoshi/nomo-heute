@@ -121,9 +121,10 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
         </div>
       )}
 
-      {/* PDF Content - Full width and height */}
-      <div className={`flex-1 flex items-center justify-center p-2 ${numPages && numPages > 1 ? 'pt-20' : 'pt-2'}`}>
-        <div className="w-full h-full max-w-full">
+      {/* PDF Content - Centered on desktop, touch-zoomable on mobile */}
+      <div className={`flex-1 flex justify-center ${numPages && numPages > 1 ? 'pt-20' : 'pt-2'}`}>
+        {/* Desktop: Fixed max-width container for centering */}
+        <div className="hidden md:flex w-full max-w-4xl justify-center p-4">
           <Document
             file={pdfUrl}
             onLoadSuccess={onDocumentLoadSuccess}
@@ -137,11 +138,11 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
               </div>
             }
             error={null}
-            className="w-full h-full"
+            className="shadow-lg rounded-lg overflow-hidden"
           >
             <Page 
               pageNumber={pageNumber} 
-              width={pageWidth}
+              width={Math.min(pageWidth, 900)}
               className="mx-auto"
               loading={
                 <div className="flex items-center justify-center h-96">
@@ -150,6 +151,38 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
               }
             />
           </Document>
+        </div>
+        
+        {/* Mobile: Touch-zoomable container */}
+        <div className="md:hidden mobile-pdf-container">
+          <div className="mobile-pdf-content">
+            <Document
+              file={pdfUrl}
+              onLoadSuccess={onDocumentLoadSuccess}
+              onLoadError={onDocumentLoadError}
+              loading={
+                <div className="flex items-center justify-center h-screen">
+                  <div className="text-2xl text-gray-600 text-center">
+                    <div className="mb-4">📰</div>
+                    <div>Zeitung wird geladen...</div>
+                  </div>
+                </div>
+              }
+              error={null}
+              className="w-full"
+            >
+              <Page 
+                pageNumber={pageNumber} 
+                width={Math.max(pageWidth, 600)}
+                className=""
+                loading={
+                  <div className="flex items-center justify-center h-96">
+                    <div className="text-xl text-gray-600">Seite wird geladen...</div>
+                  </div>
+                }
+              />
+            </Document>
+          </div>
         </div>
       </div>
     </div>
