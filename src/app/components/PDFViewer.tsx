@@ -67,7 +67,8 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
       {/* Fixed Header Navigation */}
       {numPages && numPages > 1 && (
         <div className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 shadow-lg z-50">
-          <div className="flex items-center justify-between px-4 py-3">
+          {/* Mobile: Full width layout */}
+          <div className="flex items-center justify-between px-4 py-3 md:hidden">
             <button
               onClick={goToPrevPage}
               disabled={pageNumber <= 1}
@@ -89,6 +90,33 @@ const PDFViewer = ({ pdfUrl }: { pdfUrl: string }) => {
             >
               Weiter →
             </button>
+          </div>
+
+          {/* Desktop: Centered layout */}
+          <div className="hidden md:flex items-center justify-center px-4 py-3">
+            <div className="flex items-center gap-6">
+              <button
+                onClick={goToPrevPage}
+                disabled={pageNumber <= 1}
+                className="py-3 px-8 bg-blue-600 text-white rounded-lg disabled:bg-gray-300 text-lg font-semibold transition-colors hover:bg-blue-700 disabled:hover:bg-gray-300"
+              >
+                ← Zurück
+              </button>
+              
+              <div className="text-center min-w-[100px]">
+                <span className="text-lg font-medium text-gray-700 whitespace-nowrap">
+                  {pageNumber} / {numPages}
+                </span>
+              </div>
+              
+              <button
+                onClick={goToNextPage}
+                disabled={pageNumber >= numPages}
+                className="py-3 px-8 bg-blue-600 text-white rounded-lg disabled:bg-gray-300 text-lg font-semibold transition-colors hover:bg-blue-700 disabled:hover:bg-gray-300"
+              >
+                Weiter →
+              </button>
+            </div>
           </div>
         </div>
       )}
